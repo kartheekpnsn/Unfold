@@ -1,0 +1,29 @@
+{
+  "title": "Large Language Models",
+  "topic": "LLM",
+  "folder": "LLM",
+  "duration": "30m",
+  "level": "intermediate",
+  "phase": "done",
+  "phases": {
+    "intake": "2026-11-23T00:00:00Z",
+    "probe": "2026-11-23T00:05:00Z",
+    "research": "2026-11-23T00:15:00Z",
+    "grill": "2026-11-23T00:25:00Z",
+    "prd": "2026-11-23T00:35:00Z",
+    "build": "2026-11-23T01:00:00Z",
+    "done": "2026-11-23T01:02:00Z"
+  },
+  "runs": [
+    {
+      "started": "2026-11-23T00:00:00Z",
+      "mode": "new",
+      "finished": "2026-11-23T01:02:00Z"
+    }
+  ],
+  "notes": [
+    "placed at top level: no ML or DL topic exists yet",
+    "research: 12 sources, 10 primary, 42 claims",
+    "build: passed, 4/9/8 steps, 8 quiz items; no adoptions"
+  ]
+}

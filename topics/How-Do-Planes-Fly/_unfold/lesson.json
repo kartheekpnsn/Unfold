@@ -1,0 +1,425 @@
+{
+  "slug": "how-do-planes-fly",
+  "title": "How Do Planes Fly?",
+  "duration": "2h",
+  "level": "intermediate",
+  "domain": "science",
+  "summary": "Wings make lift by turning moving air downward; pressure and Newton's third law are two views of the same thing.",
+  "playerVersion": "1.0.0",
+  "sourcesAccessed": "2026-11-23",
+  "objectives": [
+    "Explain lift as **air turned downward** by a moving wing",
+    "Connect the **pressure** view and the **Newton** view of lift",
+    "Use the **lift equation** to predict what doubling speed or area does",
+    "Explain what **angle of attack** does and why wings **stall**",
+    "Spot the **equal transit time** myth and say why it's wrong"
+  ],
+  "tabs": [
+    {
+      "id": "eli5", "title": "ELI5", "icon": "lightbulb", "kind": "stepper",
+      "steps": [
+        {
+          "title": "A wing sitting in moving air",
+          "scene": "lift-2d",
+          "state": { "aoa": 0, "flow": true, "caption": "Air streams past a wing, like a hand out of a car window" },
+          "narration": "Hold your flat hand out of a moving car's window and you feel the air push on it. A wing is a carefully shaped hand. Lift needs a solid body **moving relative to air** [S1].",
+          "metrics": { "angle": "0°", "lift": "small" }
+        },
+        {
+          "title": "Tilt it up a little",
+          "scene": "lift-2d",
+          "state": { "aoa": 8, "flow": true, "showAoa": true, "lift": true, "caption": "Tilt the front up and the wing rises" },
+          "narration": "Tilt the front of your hand up and it gets pushed up. Pilots call that tilt the **angle of attack**. A little more angle makes a lot more lift [S3].",
+          "whatChanged": ["~ angle of attack 0° → 8°", "+ lift appears"],
+          "metrics": { "angle": "8°", "lift": "more" }
+        },
+        {
+          "title": "Air goes down, wing goes up",
+          "scene": "lift-2d",
+          "state": { "aoa": 8, "flow": true, "lift": true, "downwash": true, "caption": "Push air down and the air pushes you up" },
+          "narration": "Watch the blue dots behind the wing: they get **turned downward**. Pushing air down means the air pushes the wing up, just like a swimmer pushing water back to move forward [S1].",
+          "whatChanged": ["+ air leaving the wing points down"],
+          "metrics": { "angle": "8°", "lift": "more" }
+        },
+        {
+          "title": "No air, no lift",
+          "scene": "lift-2d",
+          "state": { "aoa": 8, "flow": false, "caption": "In space, wings do nothing", "captionColor": "red-ink" },
+          "narration": "Take the air away and the wing has nothing to push on. That's why the Space Shuttle's wings didn't hold it up in space: **no fluid, no lift** [S1].",
+          "whatChanged": ["- airflow removed", "- lift gone"],
+          "metrics": { "angle": "8°", "lift": "none" }
+        },
+        {
+          "title": "Too much tilt: stall",
+          "scene": "lift-2d",
+          "state": { "aoa": 19, "flow": true, "lift": true, "showAoa": true, "caption": "Tilt too far and the air stops following the wing" },
+          "narration": "Tilt your hand too steeply and the air can't follow the top surface any more. It breaks away in swirls and the lift suddenly drops. That's a **stall** [S3].",
+          "callout": { "kind": "warning", "text": "A stall is about the wing's angle to the air, not the engine stopping." },
+          "whatChanged": ["~ angle 8° → 19°", "- smooth flow on top breaks up"],
+          "metrics": { "angle": "19°", "lift": "drops" }
+        }
+      ]
+    },
+    {
+      "id": "core", "title": "Core Mechanism", "icon": "airplane", "kind": "stepper",
+      "steps": [
+        {
+          "title": "Meet the wing",
+          "scene": "wing-3d",
+          "state": { "aoa": 0, "flow": false, "view": "three" },
+          "narration": "This is a wing section: rounded at the front, thin at the back, slightly curved. Drag the view to look around. Most of an airliner's lift comes from its wings [S1].",
+          "metrics": { "angle": "0°", "airflow": "off" }
+        },
+        {
+          "title": "Turn on the air",
+          "scene": "wing-3d",
+          "state": { "aoa": 0, "flow": true, "view": "side" },
+          "narration": "Now air streams past from left to right. It makes no difference whether the wing moves through still air or air moves past a still wing; only the **relative motion** matters [S1].",
+          "whatChanged": ["+ airflow on", "~ view turned to the side"],
+          "metrics": { "angle": "0°", "airflow": "on" }
+        },
+        {
+          "title": "Tilt: angle of attack",
+          "scene": "wing-3d",
+          "state": { "aoa": 6, "flow": true, "showAoa": true, "view": "side" },
+          "narration": "The angle between the wing's chord line and the oncoming air is the **angle of attack**. At takeoff the pilot 'rotates' the plane, raising the nose to increase it [S3].",
+          "whatChanged": ["~ angle of attack 0° → 6°"],
+          "metrics": { "angle": "6°", "airflow": "on" }
+        },
+        {
+          "title": "The air is turned down",
+          "scene": "wing-3d",
+          "state": { "aoa": 6, "flow": true, "downwash": true, "view": "side" },
+          "narration": "Follow the streamlines: air rises slightly ahead of the wing and leaves **angled downward** behind it. Both the upper and lower surfaces help turn it [S1].",
+          "callout": { "kind": "good-to-know", "text": "Ignoring the upper surface's part in turning the flow leads to a wrong theory of lift [S1]." },
+          "whatChanged": ["+ downwash behind the wing"],
+          "metrics": { "angle": "6°", "airflow": "turned down" }
+        },
+        {
+          "title": "Newton: turned air pushes back",
+          "scene": "wing-3d",
+          "state": { "aoa": 6, "flow": true, "downwash": true, "lift": true, "weight": true, "view": "three" },
+          "narration": "Turn a flow one way and you get a force the other way: Newton's third law. Air pushed **down** means the wing is pushed **up** [S1]. When lift matches weight, the plane holds its height.",
+          "whatChanged": ["+ lift (green)", "+ weight (grey)"],
+          "metrics": { "angle": "6°", "lift": "≈ weight" }
+        },
+        {
+          "title": "Bernoulli: low pressure on top",
+          "scene": "wing-3d",
+          "state": { "aoa": 6, "flow": true, "lift": true, "pressure": true, "view": "side" },
+          "narration": "Air over the top moves **faster** (watch the dots) and its pressure drops (blue). Below, pressure is higher (red). Adding up the pressure all around the wing gives the same force [S4].",
+          "callout": { "kind": "insight", "text": "Pressure and flow turning aren't rival theories; they're two ways of adding up one force [S4]." },
+          "whatChanged": ["+ low pressure above (blue)", "+ high pressure below (red)"],
+          "metrics": { "angle": "6°", "top flow": "faster" }
+        },
+        {
+          "title": "Faster means much more lift",
+          "scene": "wing-3d",
+          "state": { "aoa": 6, "speed": 1.6, "flow": true, "lift": true, "pressure": true, "view": "side" },
+          "narration": "Lift depends on the **square** of speed [S2]. At 1.6× the speed the wing makes about 2.5× the lift. That's why planes need long runways to build speed before liftoff.",
+          "whatChanged": ["~ speed ×1.0 → ×1.6", "+ lift ×2.6"],
+          "metrics": { "speed": "×1.6", "lift": "×2.6" }
+        },
+        {
+          "title": "Too steep: the stall",
+          "scene": "wing-3d",
+          "state": { "aoa": 19, "flow": true, "lift": true, "view": "side" },
+          "narration": "Past roughly 15° here, the air **separates** from the upper surface and swirls. The wing suddenly loses lift: a **stall** [S3]. Predicting the exact stall angle is hard, so engineers measure it in wind tunnels [S3].",
+          "callout": { "kind": "warning", "text": "Recovering from a stall means lowering the nose to reduce the angle of attack." },
+          "whatChanged": ["~ angle 6° → 19°", "- flow separates on top", "- lift collapses"],
+          "metrics": { "angle": "19°", "status": "stalled" }
+        }
+      ]
+    },
+    {
+      "id": "technical", "title": "Technical", "icon": "code", "kind": "stepper",
+      "steps": [
+        {
+          "title": "Four forces",
+          "scene": "lift-2d",
+          "state": { "aoa": 4, "flow": true, "lift": true, "weight": true, "thrust": true, "drag": true },
+          "narration": "Lift directly opposes the airplane's **weight** [S1]. Thrust pushes it forward and drag resists the motion. In steady level flight, lift balances weight and thrust balances drag.",
+          "metrics": { "forces": 4 }
+        },
+        {
+          "title": "Lift is perpendicular to the flow",
+          "scene": "lift-2d",
+          "state": { "aoa": 4, "flow": true, "lift": true, "drag": true },
+          "narration": "Lift is defined as the part of the aerodynamic force **perpendicular** to the oncoming flow; drag is the part **parallel** to it [S1]. Lift acts through the **center of pressure** [S1].",
+          "callout": { "kind": "good-to-know", "text": "'Perpendicular to the flow' isn't always 'up': on a banked turn, lift tilts with the wings." },
+          "metrics": { "lift": "⊥ flow", "drag": "∥ flow" }
+        },
+        {
+          "title": "The lift equation",
+          "scene": "lift-eq",
+          "state": { "bars": [{ "id": "base", "label": "baseline", "value": 1, "color": "blue" }], "caption": "Every factor that matters, in one line" },
+          "narration": "Lift equals the **lift coefficient** times **density** times **half the velocity squared** times **wing area** [S2]. The coefficient Cl bundles the hard parts: shape, angle, viscosity and compressibility [S2].",
+          "formula": "L = Cl · (ρ · V² / 2) · A",
+          "metrics": { "terms": 4 }
+        },
+        {
+          "title": "Dynamic pressure links to Bernoulli",
+          "scene": "lift-eq",
+          "state": { "bars": [{ "id": "base", "label": "baseline", "value": 1, "color": "blue" }, { "id": "v2", "label": "2× speed", "value": 4, "color": "green" }], "caption": "½ρV² is the dynamic pressure" },
+          "narration": "The group ρV²/2 is the **dynamic pressure**, the same term in Bernoulli's equation [S2]. Bernoulli says static pressure plus dynamic pressure stays constant along the flow [S5]: speed up the air and its static pressure falls.",
+          "formula": "p_s + ½ρV² = p_t (constant)",
+          "whatChanged": ["+ 2× speed → 4× lift"],
+          "metrics": { "2× speed": "4× lift" }
+        },
+        {
+          "title": "Cl rises with angle, then stalls",
+          "scene": "cl-curve",
+          "state": { "aoa": 8, "linearZone": true, "stallZone": true, "caption": "Lift coefficient vs angle of attack (typical thin airfoil)" },
+          "narration": "For thin airfoils, lift is **directly proportional** to angle of attack for small angles, within about ±10° [S3]. Beyond that the curve bends, and past the stall point the flow becomes unsteady [S3].",
+          "metrics": { "linear to": "≈10°", "stall": "≈15° here" }
+        },
+        {
+          "title": "Why camber matters",
+          "scene": "cl-curve",
+          "state": { "aoa": 0, "symmetric": true, "caption": "Cambered vs symmetric airfoil" },
+          "narration": "A curved (**cambered**) airfoil makes a little lift even at zero angle. A **symmetric** airfoil makes zero lift at zero angle [S3], which is why aerobatic planes, which fly upside down, often use symmetric wings.",
+          "whatChanged": ["+ dashed: symmetric airfoil"],
+          "metrics": { "cambered at 0°": "Cl > 0", "symmetric at 0°": "Cl = 0" }
+        }
+      ]
+    },
+    {
+      "id": "deep-dive", "title": "Deep Dive", "icon": "layer", "kind": "lessons",
+      "lessons": [
+        {
+          "id": "boundary-layer", "title": "Boundary layer & stall",
+          "steps": [
+            {
+              "title": "Air sticks to the surface",
+              "scene": "lift-2d",
+              "state": { "aoa": 10, "flow": true, "showAoa": true },
+              "narration": "Air molecules **stick** to the wing's surface, creating a thin **boundary layer** that, in effect, changes the wing's shape. The flow turning responds to the edge of that layer, not the bare metal [S3].",
+              "metrics": { "angle": "10°", "flow": "attached" }
+            },
+            {
+              "title": "The layer separates",
+              "scene": "lift-2d",
+              "state": { "aoa": 18, "flow": true, "showAoa": true, "lift": true },
+              "narration": "At high angles the boundary layer can **lift off**, or separate, from the body. The effective shape becomes very different from the real one, and the wing abruptly loses lift [S3].",
+              "whatChanged": ["- boundary layer separates on top", "- lift drops"],
+              "metrics": { "angle": "18°", "flow": "separated" }
+            },
+            {
+              "title": "Why the stall angle is measured, not computed",
+              "scene": "cl-curve",
+              "state": { "aoa": 16, "stallZone": true },
+              "narration": "Predicting the stall point mathematically is very difficult, so engineers rely on **wind-tunnel tests** that carefully match the real aircraft's similarity parameters [S3]. Past stall, lift varies rapidly with time, so plots usually stop there [S3].",
+              "metrics": { "angle": "16°", "status": "stalled" }
+            }
+          ]
+        },
+        {
+          "id": "using-the-equation", "title": "Using the lift equation",
+          "steps": [
+            {
+              "title": "Double the speed",
+              "scene": "lift-eq",
+              "state": { "bars": [{ "id": "base", "label": "baseline", "value": 1 }, { "id": "v2", "label": "2× speed", "value": 4, "color": "green" }] },
+              "narration": "Velocity is **squared** in the lift equation [S2], so doubling speed quadruples lift. Halving speed cuts lift to a quarter, which is why landing approaches need high-lift flaps.",
+              "formula": "(2V)² = 4V²",
+              "metrics": { "lift": "×4" }
+            },
+            {
+              "title": "Double the wing area",
+              "scene": "lift-eq",
+              "state": { "bars": [{ "id": "base", "label": "baseline", "value": 1 }, { "id": "v2", "label": "2× speed", "value": 4, "color": "green" }, { "id": "a2", "label": "2× area", "value": 2, "color": "yellow" }] },
+              "narration": "Area enters **linearly** [S2]: twice the wing area gives twice the lift at the same speed and angle. Big, slow aircraft such as gliders lean on large wing areas.",
+              "formula": "L ∝ A",
+              "metrics": { "lift": "×2" }
+            },
+            {
+              "title": "Thinner air",
+              "scene": "lift-eq",
+              "state": { "bars": [{ "id": "base", "label": "baseline", "value": 1 }, { "id": "v2", "label": "2× speed", "value": 4, "color": "green" }, { "id": "a2", "label": "2× area", "value": 2, "color": "yellow" }, { "id": "rho", "label": "½ density", "value": 0.5, "color": "red" }] },
+              "narration": "Lift is proportional to air **density** ρ [S2]. Halve the density, as in thin high-altitude air, and you halve the lift unless you fly faster or at a higher angle to make up for it.",
+              "formula": "L ∝ ρ",
+              "metrics": { "lift": "×0.5" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "playground", "title": "Playground", "icon": "options", "kind": "playground",
+      "heading": "Fly the wing",
+      "scene": "wing-3d",
+      "intro": "Change the angle and speed and watch the airflow, pressure and lift respond. Try to make it stall, then recover.",
+      "state": { "flow": true, "lift": true, "downwash": true, "view": "side" },
+      "controls": [
+        { "id": "aoa", "label": "Angle of attack", "type": "range", "min": -4, "max": 20, "step": 1, "value": 5, "unit": "°" },
+        { "id": "speed", "label": "Airspeed (× cruise)", "type": "range", "min": 0.5, "max": 2, "step": 0.1, "value": 1, "unit": "×" },
+        { "id": "pressure", "label": "Show pressure", "type": "toggle", "value": true },
+        { "id": "view", "label": "View", "type": "choice", "value": "side", "options": [{ "value": "side", "label": "Side" }, { "value": "three", "label": "3D" }, { "value": "low", "label": "Below" }] }
+      ]
+    },
+    {
+      "id": "story", "title": "Story & Misconceptions", "icon": "history", "kind": "story",
+      "intro": "Two centuries of physics came before anyone flew; the names Bernoulli and Newton got attached to lift much later.",
+      "timeline": [
+        { "when": "1686", "title": "Newton's laws of motion", "text": "Isaac Newton presents his three laws of motion in the *Principia* [S4]. The third, action and reaction, later explains flow turning." },
+        { "when": "1738", "title": "Bernoulli's Hydrodynamica", "text": "Daniel Bernoulli applies conservation of energy to fluid flow [S4]. Neither he nor Newton ever tried to explain aerodynamic lift [S4]." },
+        { "when": "1799", "title": "Cayley's fixed-wing idea", "text": "George Cayley sets out the modern aeroplane: a fixed wing with separate systems for lift, propulsion and control [S6]." },
+        { "when": "1853", "title": "A glider carries a person", "text": "A larger Cayley glider flies across Brompton Dale; Cayley designed the first glider reliably reported to carry a human aloft [S6]." },
+        { "when": "1891", "title": "Lilienthal's gliding flights", "text": "Otto Lilienthal makes the first well-documented, repeated, successful glider flights [S7]. In 1896 his glider stalls and he dies of his injuries [S7]." },
+        { "when": "1903", "title": "First powered, controlled flight", "text": "On 17 December the Wright brothers' Flyer makes the first sustained flight of a manned, powered, controlled heavier-than-air aircraft [S8]." }
+      ],
+      "misconceptions": [
+        {
+          "myth": "Air over the longer top surface must 'meet up' with air underneath at the trailing edge, so it speeds up (**equal transit time**).",
+          "why": "Nothing forces the two parcels to meet. Real flow over the top of a lifting wing is **much faster** than equal transit would predict [S4].",
+          "truth": "Use the real velocity distribution; Bernoulli then gives the right pressure, and the pressure gives the right force [S4]."
+        },
+        {
+          "myth": "Lift is air bouncing off the wing's **underside**, like a stone skipping on water.",
+          "why": "It ignores the upper surface, which also turns the flow [S4].",
+          "truth": "Both the upper and lower surfaces turn the flow downward, and both contribute to lift [S1]."
+        },
+        {
+          "myth": "The top of a wing is half of a **Venturi nozzle** that squeezes the air faster.",
+          "why": "A wing section isn't really half a Venturi nozzle, so the predicted velocity is wrong [S4].",
+          "truth": "The velocity comes from the whole flow around the wing, which must conserve mass, momentum and energy together [S4]."
+        },
+        {
+          "myth": "\"Bernoulli\" and \"Newton\" are rival explanations, and only one is right.",
+          "why": "Integrating pressure around the body and integrating flow turning both give the same aerodynamic force [S4].",
+          "truth": "Both are correct when applied properly; the arguments come from misapplying or over-simplifying them [S4]."
+        }
+      ]
+    },
+    {
+      "id": "tradeoffs", "title": "Trade-offs", "icon": "scales", "kind": "tradeoffs",
+      "heading": "Explanations compared",
+      "intro": "For a science topic, 'trade-offs' means which explanation to reach for and where each one misleads.",
+      "useWhen": [
+        "**Flow turning (Newton)**: explaining downwash, why angle of attack matters, and why there's no lift without air [S1]",
+        "**Pressure (Bernoulli)**: computing forces from a known velocity field around the wing [S4]",
+        "**Lift equation**: estimating how speed, area or air density change lift [S2]"
+      ],
+      "avoidWhen": [
+        "Using Bernoulli with an **assumed** speed, such as equal transit time or a Venturi shape [S4]",
+        "Using Newton on the **bottom surface only** (the skipping-stone picture) [S4]",
+        "Using the lift equation past the stall, where Cl changes rapidly with time [S3]"
+      ],
+      "pros": [
+        "Flow turning is intuitive and needs no equations",
+        "The pressure view connects directly to what wind-tunnel sensors measure",
+        "The lift equation packs every hard effect into one measured number, Cl [S2]"
+      ],
+      "cons": [
+        "Neither simple picture predicts the exact velocity distribution on its own [S4]",
+        "Cl has to be determined experimentally in general [S2]",
+        "Real lift also involves viscosity and compressibility, which these pictures leave out [S2]"
+      ],
+      "perspectives": [
+        { "name": "The 'Bernoulli' camp", "view": "Lift comes from a pressure difference across the wing [S4]." },
+        { "name": "The 'Newton' camp", "view": "Lift is the reaction force from deflecting a flow of gas [S4]." },
+        { "name": "NASA's view", "view": "Both camps are correct: integrate pressure or integrate flow turning, and you get the same force [S4]." }
+      ]
+    },
+    { "id": "check", "title": "Check Yourself", "icon": "question-circle", "kind": "quiz" },
+    {
+      "id": "cheatsheet", "title": "Cheatsheet", "icon": "document-text", "kind": "cheatsheet",
+      "facts": [
+        "Lift is a mechanical force: it needs a fluid and relative motion [S1]",
+        "Lift acts perpendicular to the flow, through the center of pressure [S1]",
+        "Lift ∝ V², so 2× speed gives 4× lift [S2]",
+        "Lift is roughly proportional to angle of attack within about ±10° for thin airfoils [S3]",
+        "A stall is boundary-layer separation at high angle of attack [S3]",
+        "Both Bernoulli and Newton are correct descriptions of lift [S4]"
+      ],
+      "formulas": [
+        { "label": "Lift equation", "expr": "L = Cl · ρ · V² / 2 · A", "note": "Cl lift coefficient, ρ density, V velocity, A wing area [S2]" },
+        { "label": "Dynamic pressure", "expr": "q = ρ · V² / 2", "note": "The term shared by the lift equation and Bernoulli's equation [S2]" },
+        { "label": "Bernoulli (steady, inviscid)", "expr": "p_s + ρ · V² / 2 = p_t", "note": "Static plus dynamic pressure is constant along the flow [S5]" }
+      ],
+      "glossary": [
+        { "term": "Lift", "def": "The part of the aerodynamic force perpendicular to the oncoming flow [S1]" },
+        { "term": "Drag", "def": "The part of the aerodynamic force parallel to the oncoming flow, opposing motion [S1]" },
+        { "term": "Angle of attack", "def": "Angle between the chord line and the flight direction [S3]" },
+        { "term": "Chord line", "def": "Straight line from the leading edge to the trailing edge" },
+        { "term": "Camber", "def": "Curvature of the airfoil's mean line; gives lift at zero angle [S3]" },
+        { "term": "Downwash", "def": "Air leaving the wing angled downward" },
+        { "term": "Boundary layer", "def": "Thin layer of air stuck to the surface that changes the effective shape [S3]" },
+        { "term": "Stall", "def": "Sudden loss of lift when the boundary layer separates at high angle [S3]" },
+        { "term": "Lift coefficient (Cl)", "def": "One number capturing shape, angle, viscosity and compressibility effects [S2]" }
+      ]
+    },
+    { "id": "related", "title": "Related & Sources", "icon": "branch", "kind": "related" }
+  ],
+  "quiz": [
+    {
+      "q": "According to NASA, what is the basic cause of lift?",
+      "options": ["A moving flow is turned by the wing", "Air molecules meet at the trailing edge", "Engines blow air over the wing's top", "The wing is lighter than the air"],
+      "answer": 0, "concept": "flow-turning",
+      "why": "Lift occurs when a moving flow of gas is turned by a solid object; the reaction pushes the wing the other way [S1]."
+    },
+    {
+      "q": "A plane doubles its airspeed at the same angle and altitude. Roughly how does lift change?",
+      "options": ["It stays the same", "It doubles", "It quadruples", "It halves"],
+      "answer": 2, "concept": "lift-equation",
+      "why": "Lift depends on velocity squared: (2V)² = 4V² [S2]."
+    },
+    {
+      "q": "What is wrong with the 'equal transit time' explanation?",
+      "options": ["Bernoulli's equation is false for air", "The top-surface speed it assumes is wrong", "Wings have flat upper surfaces", "Air underneath moves faster than above"],
+      "answer": 1, "concept": "equal-transit",
+      "why": "Real flow over the top is much faster than equal transit predicts, so the assumed velocity, not Bernoulli, is the error [S4]."
+    },
+    {
+      "q": "What happens to the flow when a wing stalls?",
+      "options": ["Air stops moving past the wing", "Air speeds up under the wing", "The engines stop producing thrust", "The boundary layer separates on top"],
+      "answer": 3, "concept": "stall",
+      "why": "At high angles the boundary layer separates and the wing abruptly loses lift [S3]."
+    },
+    {
+      "q": "Which statement about the 'Bernoulli' and 'Newton' explanations is correct?",
+      "options": ["Only the Newton picture is correct", "Both give the same force if done right", "Only the Bernoulli picture is correct", "Neither one applies to real wings"],
+      "answer": 1, "concept": "bernoulli-vs-newton",
+      "why": "Integrating pressure or flow turning around the body both determine the same aerodynamic force [S4]."
+    },
+    {
+      "q": "A symmetric airfoil is set at 0° angle of attack. How much lift does it make?",
+      "options": ["None at all", "The most possible", "Exactly its weight", "A small downforce"],
+      "answer": 0, "concept": "camber",
+      "why": "A symmetric airfoil makes zero lift at zero angle; a cambered one makes a little [S3]."
+    },
+    {
+      "q": "Why don't the Space Shuttle's wings keep it in orbit?",
+      "options": ["They point the wrong way up", "It flies too fast for wings", "There's almost no air to turn", "Its wings are too small"],
+      "answer": 2, "concept": "no-fluid",
+      "why": "Lift needs contact with a fluid; space is nearly a vacuum, so the Shuttle stays up through orbital mechanics [S1]."
+    },
+    {
+      "q": "Which direction does lift act?",
+      "options": ["Always straight up from the ground", "Along the wing's chord line", "Parallel to the oncoming flow", "Perpendicular to the oncoming flow"],
+      "answer": 3, "concept": "lift-direction",
+      "why": "Lift is the force component perpendicular to the flow direction [S1]."
+    }
+  ],
+  "related": {
+    "prereqs": [
+      { "id": "newtons-laws-of-motion", "title": "Newton's Laws of Motion", "why": "The third law is the heart of flow turning." },
+      { "id": "bernoullis-principle", "title": "Bernoulli's Principle", "why": "Links air speed to pressure." }
+    ],
+    "next": [
+      { "id": "how-jet-engines-work", "title": "How Jet Engines Work", "why": "Where thrust comes from." },
+      { "id": "how-helicopters-fly", "title": "How Helicopters Fly", "why": "Spinning wings: the same lift, made by rotor blades." },
+      { "id": "drag", "title": "Aerodynamic Drag", "why": "The force lift always comes paired with." }
+    ]
+  },
+  "sources": [
+    { "id": "S1", "title": "What is Lift?", "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/what-is-lift/", "publisher": "NASA Glenn Research Center", "trust": "Primary: NASA Beginner's Guide to Aeronautics" },
+    { "id": "S2", "title": "Lift Equation", "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/lift-equation/", "publisher": "NASA Glenn Research Center", "trust": "Primary: NASA Beginner's Guide to Aeronautics" },
+    { "id": "S3", "title": "Angle of Attack (Inclination Effects on Lift)", "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/foilinc/", "publisher": "NASA Glenn Research Center", "trust": "Primary: NASA Beginner's Guide to Aeronautics" },
+    { "id": "S4", "title": "Bernoulli and Newton", "url": "https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/bernoulli-and-newton/", "publisher": "NASA Glenn Research Center", "trust": "Primary: NASA Beginner's Guide to Aeronautics" },
+    { "id": "S5", "title": "Bernoulli's Equation", "url": "https://www.grc.nasa.gov/www/k-12/airplane/bern.html", "publisher": "NASA Glenn Research Center", "trust": "Primary: NASA educational page" },
+    { "id": "S6", "title": "George Cayley", "url": "https://en.wikipedia.org/wiki/George_Cayley", "publisher": "Wikipedia", "trust": "Encyclopedia; dates match museum records cited there" },
+    { "id": "S7", "title": "Otto Lilienthal", "url": "https://en.wikipedia.org/wiki/Otto_Lilienthal", "publisher": "Wikipedia", "trust": "Encyclopedia" },
+    { "id": "S8", "title": "Wright Flyer", "url": "https://en.wikipedia.org/wiki/Wright_Flyer", "publisher": "Wikipedia", "trust": "Encyclopedia" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Responsive Self Service Procurement in Oracle Fusion",
+  "topic": "Responsive Self Service Procurement in Oracle Fusion",
+  "folder": "Responsive-Self-Service-Procurement",
+  "duration": "30m",
+  "level": null,
+  "phase": "research",
+  "phases": {
+    "intake": "2026-11-23T00:00:00Z",
+    "probe": "2026-11-23T00:05:00Z",
+    "research": "2026-11-23T00:15:00Z"
+  },
+  "runs": [
+    {
+      "started": "2026-11-23T00:00:00Z",
+      "mode": "new",
+      "finished": null
+    }
+  ],
+  "notes": [
+    "research: 20 sources, all primary (Oracle docs + readiness)"
+  ]
+}

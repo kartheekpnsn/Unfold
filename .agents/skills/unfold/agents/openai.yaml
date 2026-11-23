@@ -1,0 +1,6 @@
+# Codex skill metadata: shows "Unfold" in the skill picker and stops Codex from invoking it implicitly.
+interface:
+  display_name: "Unfold"
+  short_description: "Build an animated, step-through lesson for a topic and file it in your topic folders"
+policy:
+  allow_implicit_invocation: false

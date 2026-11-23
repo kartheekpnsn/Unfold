@@ -1,0 +1,110 @@
+[
+  {
+    "id": "S1",
+    "title": "Language Models are Unsupervised Multitask Learners (GPT-2)",
+    "url": "https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf",
+    "publisher": "OpenAI (Radford et al., 2019)",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "LM factorization, byte-level BPE (256 base, 50,257 vocab), context 512->1024, pre-norm, model size table, top-k sampling"
+  },
+  {
+    "id": "S2",
+    "title": "Byte-Pair Encoding tokenization (LLM Course, chapter 6.5)",
+    "url": "https://huggingface.co/learn/llm-course/chapter6/5",
+    "publisher": "Hugging Face",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "BPE training by merging most frequent pairs; inference applies merges in order; byte-level base of 256"
+  },
+  {
+    "id": "S3",
+    "title": "Speech and Language Processing (3rd ed. draft), Chapter 7: Transformers and Pretraining",
+    "url": "https://web.stanford.edu/~jurafsky/slp3/7.pdf",
+    "publisher": "Stanford University (Jurafsky and Martin), draft of 2026-08-19",
+    "accessed": "2026-11-23",
+    "trust": "institutional",
+    "note": "Shapes, Q/K/V roles, causal mask, residual stream, FFN/SwiGLU, pre-norm, LM head and weight tying, cross-entropy/teacher forcing, greedy, temperature table, top-k/top-p"
+  },
+  {
+    "id": "S4",
+    "title": "Attention Is All You Need",
+    "url": "https://arxiv.org/html/1706.03762v7",
+    "publisher": "arXiv (Vaswani et al., 2017)",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "Scaled dot-product and multi-head attention, sqrt(d_k) rationale, masking, post-norm, FFN, sinusoidal PE, weight sharing, O(n^2 d)"
+  },
+  {
+    "id": "S5",
+    "title": "How to generate text: using different decoding methods for language generation with Transformers",
+    "url": "https://huggingface.co/blog/how-to-generate",
+    "publisher": "Hugging Face",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "Greedy, beam, sampling, temperature, top-k, top-p with worked examples"
+  },
+  {
+    "id": "S6",
+    "title": "How caching works (KV cache)",
+    "url": "https://huggingface.co/docs/transformers/main/en/cache_explanation",
+    "publisher": "Hugging Face Transformers docs",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "Why K/V can be cached under causal attention, per-layer cache shapes, quadratic vs linear per-step cost"
+  },
+  {
+    "id": "S7",
+    "title": "RoFormer: Enhanced Transformer with Rotary Position Embedding",
+    "url": "https://arxiv.org/abs/2104.09864",
+    "publisher": "arXiv (Su et al., 2021)",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "RoPE: rotation encodes absolute position, yields relative dependence in attention"
+  },
+  {
+    "id": "S8",
+    "title": "LLaMA: Open and Efficient Foundation Language Models",
+    "url": "https://arxiv.org/html/2302.13971",
+    "publisher": "arXiv (Touvron et al., Meta AI, 2023)",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "Pre-norm RMSNorm, SwiGLU (2/3*4d), RoPE, tokenizer details, dims/heads/layers table"
+  },
+  {
+    "id": "S9",
+    "title": "The Illustrated GPT-2 (Visualizing Transformer Language Models)",
+    "url": "https://jalammar.github.io/illustrated-gpt2/",
+    "publisher": "Jay Alammar",
+    "accessed": "2026-11-23",
+    "trust": "secondary",
+    "note": "Decoder-only stack, mask vs BERT [MASK], filing-cabinet Q/K/V analogy, generation loop to 1024"
+  },
+  {
+    "id": "S10",
+    "title": "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints",
+    "url": "https://arxiv.org/abs/2305.13245",
+    "publisher": "arXiv (Ainslie et al., EMNLP 2023)",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "MQA single KV head speeds decoding; GQA groups query heads to share KV heads"
+  },
+  {
+    "id": "S11",
+    "title": "Defeating Nondeterminism in LLM Inference",
+    "url": "https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/",
+    "publisher": "Thinking Machines Lab (Horace He et al., 2025-09-10)",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "Temperature 0 not reproducible in practice due to batch-size variance; 80 unique of 1,000 completions"
+  },
+  {
+    "id": "S12",
+    "title": "The Curious Case of Neural Text Degeneration",
+    "url": "https://arxiv.org/abs/1904.09751",
+    "publisher": "arXiv (Holtzman et al., ICLR 2020)",
+    "accessed": "2026-11-23",
+    "trust": "primary",
+    "note": "Likelihood-maximizing decoding degenerates; proposes nucleus (top-p) sampling"
+  }
+]

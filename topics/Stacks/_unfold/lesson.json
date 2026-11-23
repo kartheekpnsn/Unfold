@@ -1,0 +1,271 @@
+{
+  "slug": "stacks",
+  "title": "Stacks",
+  "duration": "30m",
+  "level": "beginner",
+  "domain": "dsa",
+  "summary": "A collection where you only ever touch the top: last in, first out.",
+  "playerVersion": "1.0.0",
+  "sourcesAccessed": "2026-11-23",
+  "objectives": [
+    "Explain **last in, first out** with an everyday example",
+    "Trace `push`, `pop` and `peek` on paper without mistakes",
+    "Say why push and pop are **O(1)** on an array-backed stack",
+    "Recognise the **call stack** and what a stack overflow is"
+  ],
+  "tabs": [
+    {
+      "id": "eli5", "title": "ELI5", "icon": "lightbulb", "kind": "stepper",
+      "steps": [
+        {
+          "title": "A pile of plates",
+          "scene": "plates",
+          "state": { "plates": ["A", "B", "C"], "caption": "Only the top plate is easy to reach" },
+          "narration": "Picture a pile of clean plates. You can't pull one from the middle without a crash. You only ever **add to the top** or **take from the top**. A stack in computing works exactly like this pile [S1].",
+          "metrics": { "plates": 3, "top": "C" }
+        },
+        {
+          "title": "Adding a plate",
+          "scene": "plates",
+          "state": { "plates": ["A", "B", "C", "D"], "hand": "in", "caption": "New plates always go on top" },
+          "narration": "A freshly washed plate goes **on top** of the pile. Programmers call this **push**. Nothing underneath moves [S1].",
+          "whatChanged": ["+ plate D pushed on top"],
+          "metrics": { "plates": 4, "top": "D" }
+        },
+        {
+          "title": "Taking a plate",
+          "scene": "plates",
+          "state": { "plates": ["A", "B", "C"], "taken": "D", "hand": "out", "caption": "You get the newest plate back first" },
+          "narration": "When you need a plate you take the **top** one, which is the one you added most recently. Programmers call this **pop** [S1].",
+          "whatChanged": ["- plate D popped off the top"],
+          "metrics": { "plates": 3, "top": "C" }
+        },
+        {
+          "title": "Last in, first out",
+          "scene": "plates",
+          "state": { "plates": ["A", "B", "C"], "highlightTop": true, "names": ["in 1st", "in 2nd", "in 3rd, out 1st"], "caption": "LIFO: last in, first out" },
+          "narration": "The plate that went in **last** comes out **first**. That rule has a name: **LIFO**, last in, first out. Plate A, the first one in, will be the last one out.",
+          "callout": { "kind": "good-to-know", "text": "A queue is the opposite: first in, first out, like a line at a shop." },
+          "metrics": { "plates": 3, "top": "C" }
+        },
+        {
+          "title": "You already use stacks",
+          "scene": "plates",
+          "state": { "plates": ["home", "search", "article"], "names": ["page 1", "page 2", "page 3 (you are here)"], "highlightTop": true, "tableLabel": "BACK BUTTON HISTORY", "caption": "Back takes you to the most recent page" },
+          "narration": "Your browser's **Back** button behaves like a stack: each page you visit is pushed, and Back pops you to the most recent one. **Undo** in an editor works the same way, newest change first.",
+          "metrics": { "pages": 3, "top": "article" }
+        }
+      ]
+    },
+    {
+      "id": "core", "title": "Core Mechanism", "icon": "stack", "kind": "stepper",
+      "code": {
+        "lang": "py", "title": "Python",
+        "src": "stack = []\nstack.append(4)      # push 4\nstack.append(6)      # push 6\nstack.append(5)      # push 5\ntop = stack[-1]      # peek -> 5\nstack.pop()          # pop  -> 5\nstack.append(9)      # push 9\nwhile stack:\n    stack.pop()      # 9, 6, 4\nstack.pop()          # IndexError!"
+      },
+      "steps": [
+        {
+          "title": "An empty stack",
+          "scene": "stack-main",
+          "state": { "stack": [], "popped": [], "op": "stack = []" },
+          "narration": "A stack starts **empty**. It has one door, the **top**, and every operation goes through it. In Python a plain list works as a stack [S2].",
+          "highlight": [1],
+          "metrics": { "size": 0, "top": "none" }
+        },
+        {
+          "title": "push(4)",
+          "scene": "stack-main",
+          "state": { "stack": [4], "popped": [], "op": "push(4)" },
+          "narration": "**push** adds an item to the top. The stack had nothing, so 4 lands at the bottom and is also the top [S1].",
+          "highlight": [2],
+          "whatChanged": ["+ pushed 4", "~ top is now 4"],
+          "metrics": { "size": 1, "top": 4 }
+        },
+        {
+          "title": "push(6)",
+          "scene": "stack-main",
+          "state": { "stack": [4, 6], "popped": [], "op": "push(6)" },
+          "narration": "6 goes **on top of** 4. Nothing below the top moves. In Python, `append()` is push: it adds to the end of the list, and the end is the top [S2].",
+          "highlight": [3],
+          "whatChanged": ["+ pushed 6", "~ top is now 6"],
+          "metrics": { "size": 2, "top": 6 }
+        },
+        {
+          "title": "push(5)",
+          "scene": "stack-main",
+          "state": { "stack": [4, 6, 5], "popped": [], "op": "push(5)" },
+          "narration": "One more push. The stack now holds 4, 6, 5 from bottom to top. Notice you can **see** 4 and 6 but you can't reach them without removing what's above [S1].",
+          "highlight": [4],
+          "whatChanged": ["+ pushed 5", "~ top is now 5"],
+          "metrics": { "size": 3, "top": 5 }
+        },
+        {
+          "title": "peek(): look, don't touch",
+          "scene": "stack-main",
+          "state": { "stack": [4, 6, 5], "popped": [], "peek": true, "op": "peek() → 5" },
+          "narration": "**peek** returns the top item **without removing it** [S1]. In Python you read `stack[-1]`. The size stays 3.",
+          "callout": { "kind": "good-to-know", "text": "peek is optional in the classic definition; push and pop are the two essential operations [S1]." },
+          "highlight": [5],
+          "whatChanged": ["~ read top (5), nothing removed"],
+          "metrics": { "size": 3, "top": 5 }
+        },
+        {
+          "title": "pop() → 5",
+          "scene": "stack-main",
+          "state": { "stack": [4, 6], "popped": [5], "op": "pop() → 5" },
+          "narration": "**pop** removes the top item and hands it back. 5 was pushed **last**, so it comes out **first**: last in, first out [S1]. `pop()` with no index does this on a Python list [S2].",
+          "highlight": [6],
+          "whatChanged": ["- popped 5", "~ top is now 6"],
+          "metrics": { "size": 2, "top": 6 }
+        },
+        {
+          "title": "push(9)",
+          "scene": "stack-main",
+          "state": { "stack": [4, 6, 9], "popped": [5], "op": "push(9)" },
+          "narration": "Pushes and pops can interleave freely. 9 goes on top of 6, taking the spot 5 just left.",
+          "highlight": [7],
+          "whatChanged": ["+ pushed 9", "~ top is now 9"],
+          "metrics": { "size": 3, "top": 9 }
+        },
+        {
+          "title": "Pop until empty",
+          "scene": "stack-main",
+          "state": { "stack": [], "popped": [5, 9, 6, 4], "stagger": true, "op": "pop() × 3 → 9, 6, 4" },
+          "narration": "Popping everything gives **9, 6, 4**: the reverse of the order they went in. Reversing order is the signature of a stack, and it's why stacks can reverse a word or undo edits.",
+          "highlight": [8, 9],
+          "whatChanged": ["- popped 9", "- popped 6", "- popped 4"],
+          "metrics": { "size": 0, "top": "none" }
+        },
+        {
+          "title": "Pop on empty: underflow",
+          "scene": "stack-main",
+          "state": { "stack": [], "popped": [5, 9, 6, 4], "op": "pop() → ?", "error": "underflow: stack is empty" },
+          "narration": "There's nothing left to pop. Popping or peeking an empty stack is an **underflow** [S1]. Python raises `IndexError`, so check `if stack:` first.",
+          "callout": { "kind": "warning", "text": "Always check for empty before pop or peek; this is the most common stack bug." },
+          "highlight": [10],
+          "whatChanged": ["~ nothing changed: error raised"],
+          "metrics": { "size": 0, "top": "none" }
+        }
+      ]
+    },
+    {
+      "id": "technical", "title": "Technical", "icon": "code", "kind": "stepper",
+      "code": {
+        "lang": "py", "title": "Array-backed stack (Python)",
+        "src": "class Stack:\n    def __init__(self):\n        self.items = []   # top = end\n\n    def push(self, x):\n        self.items.append(x)   # O(1)*\n\n    def pop(self):\n        if not self.items:\n            raise IndexError(\"underflow\")\n        return self.items.pop()   # O(1)\n\n    def peek(self):\n        if not self.items:\n            raise IndexError(\"underflow\")\n        return self.items[-1]"
+      },
+      "steps": [
+        {
+          "title": "The interface",
+          "scene": "stack-array",
+          "state": { "items": [4, 6, 5], "capacity": 4, "note": "Top lives at the END of the array" },
+          "narration": "A stack is an **abstract data type**: it promises `push`, `pop` and usually `peek`, but not how they're stored [S1]. The common choice is an array where the **end is the top**, so no item ever shifts.",
+          "highlight": [1, 2, 3],
+          "metrics": { "size": 3, "capacity": 4, "top index": 2 }
+        },
+        {
+          "title": "push writes one slot",
+          "scene": "stack-array",
+          "state": { "items": [4, 6, 5, 9], "capacity": 4, "highlight": 3, "note": "push: write at index size, size += 1" },
+          "narration": "Push writes into the next free slot and bumps the size. No other slot is touched, so adding at the end of a dynamic array takes amortized **O(1)** time, however many items there are [S1].",
+          "highlight": [5, 6],
+          "whatChanged": ["+ wrote 9 at index 3", "~ top index 2 → 3"],
+          "metrics": { "size": 4, "capacity": 4, "top index": 3 }
+        },
+        {
+          "title": "Full? Grow the array",
+          "scene": "stack-array",
+          "state": { "items": [4, 6, 5, 9, 2], "capacity": 8, "grew": 4, "highlight": 4, "note": "Full array: copy into one twice as big" },
+          "narration": "When the array is full, a dynamic array allocates a bigger one and copies everything. That copy is rare, so pushes are **amortized O(1)**: on average, constant time [S1].",
+          "callout": { "kind": "insight", "text": "Doubling the capacity is what keeps the average cost constant: the expensive copies get further and further apart." },
+          "highlight": [6],
+          "whatChanged": ["+ capacity 4 → 8", "+ wrote 2 at index 4"],
+          "metrics": { "size": 5, "capacity": 8, "top index": 4 }
+        },
+        {
+          "title": "pop reads the end",
+          "scene": "stack-array",
+          "state": { "items": [4, 6, 5, 9], "capacity": 8, "note": "pop: size -= 1, return that slot" },
+          "narration": "Pop checks for empty, then removes from the end. Removing from the end of a dynamic array takes amortized **O(1)** time [S1]. Removing from the *front* would shift every item, which is why the top is the end.",
+          "highlight": [8, 9, 10, 11],
+          "whatChanged": ["- removed 2 from index 4", "~ top index 4 → 3"],
+          "metrics": { "size": 4, "capacity": 8, "top index": 3 }
+        },
+        {
+          "title": "Your programs run on a stack",
+          "scene": "call-stack",
+          "state": { "frames": ["main()", "fact(3)", "fact(2)", "fact(1)"], "returning": "fact(1) returns 1", "stagger": true, "note": "Each call pushes a frame; each return pops one" },
+          "narration": "The **call stack** stores information about the functions currently running [S3]. Calling a function pushes a frame; returning pops it. That's why the most recent call always finishes first.",
+          "code": { "lang": "py", "title": "Recursion", "src": "def fact(n):\n    if n <= 1:\n        return 1\n    return n * fact(n - 1)\n\nfact(3)   # main → fact(3) → fact(2) → fact(1)", "highlight": [2, 3] },
+          "metrics": { "frames": 4, "running": "fact(1)" }
+        },
+        {
+          "title": "Stack overflow",
+          "scene": "call-stack",
+          "state": { "frames": ["main()", "f(1)", "f(2)", "f(3)", "f(4)", "f(5)", "f(6)", "f(…)"], "overflow": true, "limit": 7, "note": "Too many frames: the stack runs out of room" },
+          "narration": "The call stack has a limited amount of space. Recursion with no base case keeps pushing frames until it exceeds that bound: a **stack overflow**, which usually crashes the program [S4].",
+          "callout": { "kind": "warning", "text": "Python guards this with a recursion limit and raises RecursionError instead of crashing." },
+          "code": { "lang": "py", "title": "No base case", "src": "def f(n):\n    return f(n + 1)   # never stops\n\nf(1)   # RecursionError", "highlight": [2] },
+          "whatChanged": ["+ frames keep piling up", "- limit exceeded"],
+          "metrics": { "frames": "too many", "limit": "exceeded" }
+        }
+      ]
+    },
+    { "id": "check", "title": "Check Yourself", "icon": "question-circle", "kind": "quiz" },
+    { "id": "related", "title": "Related & Sources", "icon": "branch", "kind": "related" }
+  ],
+  "quiz": [
+    {
+      "q": "You push 1, then 2, then 3. What does the next `pop()` return?",
+      "options": ["3, the newest item", "1, the oldest item", "2, the middle item", "Nothing, it errors"],
+      "answer": 0, "concept": "lifo",
+      "why": "Last in, first out: 3 went in last, so it comes out first [S1]."
+    },
+    {
+      "q": "What does `peek()` do to the stack?",
+      "options": ["Removes the bottom item", "Removes the top item", "Leaves the stack unchanged", "Sorts the stack in place"],
+      "answer": 2, "concept": "peek",
+      "why": "peek returns the top item without modifying the stack [S1]."
+    },
+    {
+      "q": "Push A, push B, pop, push C, pop, pop. In what order did items come out?",
+      "options": ["A, B, C", "B, C, A", "C, B, A", "B, A, C"],
+      "answer": 1, "concept": "lifo",
+      "why": "Pop takes B (top), C is pushed and popped next, then A is all that's left."
+    },
+    {
+      "q": "Why does an array-backed stack keep its top at the **end** of the array?",
+      "options": ["Ends are always sorted", "Front items cost less", "Ends never run out of room", "No items need to shift"],
+      "answer": 3, "concept": "array-top",
+      "why": "Adding or removing at the end of a dynamic array is amortized O(1); at the front, every item would shift [S1]."
+    },
+    {
+      "q": "What happens if you call `pop()` on an empty Python list?",
+      "options": ["It returns None quietly", "It raises an IndexError", "It returns the value zero", "It removes a random item"],
+      "answer": 1, "concept": "underflow",
+      "why": "Popping an empty stack is an underflow [S1]; Python signals it with IndexError, so check `if stack:` first."
+    },
+    {
+      "q": "A recursive function has no base case. What eventually happens?",
+      "options": ["The heap fills with copies", "It loops forever, harmlessly", "The call stack overflows", "The compiler rejects it"],
+      "answer": 2, "concept": "call-stack",
+      "why": "Each call pushes a frame; with no base case the stack exceeds its bound: a stack overflow [S4]."
+    }
+  ],
+  "related": {
+    "prereqs": [
+      { "id": "arrays", "title": "Arrays", "why": "Most stacks are built on an array; knowing indexes and resizing helps." }
+    ],
+    "next": [
+      { "id": "queues", "title": "Queues", "why": "The first-in, first-out sibling of the stack." },
+      { "id": "recursion", "title": "Recursion", "why": "Every recursive call rides on the call stack." },
+      { "id": "monotonic-stack", "title": "Monotonic Stack", "why": "A stack kept in sorted order; solves 'next greater element' in one pass." }
+    ]
+  },
+  "sources": [
+    { "id": "S1", "title": "Stack (abstract data type)", "url": "https://en.wikipedia.org/wiki/Stack_(abstract_data_type)", "publisher": "Wikipedia", "trust": "Encyclopedia; cross-checked against CLRS-style definitions" },
+    { "id": "S2", "title": "Data Structures § Using Lists as Stacks", "url": "https://docs.python.org/3/tutorial/datastructures.html#using-lists-as-stacks", "publisher": "Python Software Foundation", "trust": "Official language documentation" },
+    { "id": "S3", "title": "Call stack", "url": "https://en.wikipedia.org/wiki/Call_stack", "publisher": "Wikipedia", "trust": "Encyclopedia" },
+    { "id": "S4", "title": "Stack overflow", "url": "https://en.wikipedia.org/wiki/Stack_overflow", "publisher": "Wikipedia", "trust": "Encyclopedia" }
+  ]
+}

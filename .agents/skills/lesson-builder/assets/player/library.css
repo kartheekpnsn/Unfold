@@ -1,0 +1,95 @@
+/* Topic library page (topics/index.html). Loaded after theme.css. */
+body.library { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.library .lib-title { color: var(--muted); font-size: 14px; padding-left: 14px; border-left: 1px solid var(--line); }
+.library .top-actions { margin-left: auto; }
+.lib-shell { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 340px; }
+.lib-stage { position: relative; min-width: 0; overflow: hidden;
+  background: radial-gradient(circle, var(--dot) 1px, transparent 1.2px) 0 0 / 22px 22px, var(--bg); }
+.lib-graph { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; user-select: none; }
+.lib-graph.panning { cursor: grabbing; }
+.viewport { transform-origin: 0 0; }
+
+/* edges */
+.edge { fill: none; stroke-linecap: round; transition: opacity .2s, stroke .2s; }
+.edge.contains { stroke: var(--line-strong); stroke-width: 2.5; }
+.edge.prereq, .edge.next { stroke: var(--blue-ink); stroke-width: 1.4; stroke-dasharray: 5 4; opacity: .55; }
+.edge.to-sugg { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 4; opacity: .5; }
+.edge.hl { opacity: 1; stroke-width: 2.4; }
+.edge.contains.hl { stroke: var(--ink-2); }
+.edge.dim { opacity: .12; }
+.arrow { fill: var(--blue-ink); opacity: .7; }
+.arrow.hl { opacity: 1; }
+
+/* nodes */
+.node { cursor: pointer; transition: opacity .2s; outline: none; }
+.node .halo { fill: none; stroke: transparent; stroke-width: 3; transition: stroke .2s; }
+.node .dot { stroke-width: 2; transition: r .2s; }
+.node.built .dot { fill: var(--blue); stroke: var(--surface); }
+.node.draft .dot { fill: var(--yellow-soft); stroke: var(--yellow); stroke-width: 2.5; }
+.node.suggested .dot { fill: var(--surface); stroke: var(--muted); stroke-dasharray: 3 2.5; stroke-width: 1.4; }
+.node .count { fill: #fff; font: 700 11px var(--mono); text-anchor: middle; pointer-events: none; }
+.node .label { fill: var(--ink); font-size: 12.5px; font-weight: 600; text-anchor: middle; pointer-events: none;
+  paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round; }
+.node.suggested .label { fill: var(--muted); font-weight: 400; font-size: 11.5px; }
+.node:hover .halo, .node:focus-visible .halo { stroke: var(--blue-soft); }
+.node.sel .halo { stroke: var(--blue); }
+.node.hit .label { fill: var(--blue-ink); }
+.node.dim { opacity: .18; }
+
+/* overlays on the stage */
+.lib-tools { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
+.lib-tools > * { pointer-events: auto; }
+.lib-toggle { display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; font-size: 13px; color: var(--ink-2);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); cursor: pointer; }
+.lib-legend { position: absolute; left: 12px; bottom: 34px; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted);
+  background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+.lib-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.lg-node { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.lg-node.built { background: var(--blue); }
+.lg-node.draft { background: var(--yellow-soft); border: 2px solid var(--yellow); }
+.lg-node.suggested { border: 1.4px dashed var(--muted); }
+.lg-edge { width: 20px; height: 0; display: inline-block; }
+.lg-edge.contains { border-top: 2.5px solid var(--line-strong); }
+.lg-edge.related { border-top: 1.5px dashed var(--blue-ink); }
+.lib-hint { position: absolute; left: 12px; bottom: 6px; margin: 0; font-size: 11.5px; color: var(--muted); }
+.lib-empty { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; padding: 24px; color: var(--muted); }
+.lib-empty h2 { color: var(--ink); margin: 10px 0 4px; }
+.lib-empty p { max-width: 380px; }
+
+/* side panel */
+.lib-panel { border-left: 1px solid var(--line); background: var(--surface); overflow: auto; padding: 18px 20px 28px; font-size: 14px; }
+.lib-panel h2 { font-size: 20px; letter-spacing: -.01em; margin: 4px 0 8px; }
+.lib-panel h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 20px 0 6px; }
+.lib-panel p { margin: 8px 0; }
+.lib-panel .small { font-size: 13px; }
+.lib-panel .muted, .lib-tools .muted { color: var(--muted); }
+.lib-panel .stats { color: var(--ink-2); }
+.lib-panel .foot { margin-top: 22px; }
+.lib-panel .kicker { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.lib-panel .crumbs { font-size: 13px; }
+.lib-panel .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+.lib-panel .chip.draft { background: var(--yellow-soft); color: var(--yellow-ink); border-color: transparent; }
+.lib-panel .open { margin: 8px 0 4px; padding: 8px 14px; }
+.lib-panel .back { display: inline-flex; align-items: center; gap: 5px; border: 0; background: none; padding: 0; color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+.lib-panel .back:hover { color: var(--ink); }
+.lib-panel ul { list-style: none; margin: 0; padding: 0; }
+.lib-panel .outline ul { padding-left: 16px; border-left: 1px solid var(--line); margin-left: 6px; }
+.lib-panel .outline li, .lib-panel .refs li { padding: 3px 0; }
+.lib-panel .lib-why { color: var(--muted); font-size: 12.5px; }
+.lnk { border: 0; background: none; padding: 0; font: inherit; color: var(--blue-ink); text-align: left; }
+.lnk:hover { text-decoration: underline; }
+.lnk.suggested { color: var(--ink-2); }
+.lnk.draft { color: var(--yellow-ink); }
+.lib-panel .cmd { display: flex; align-items: center; gap: 8px; }
+.lib-panel .cmd code { flex: 1; padding: 7px 10px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; }
+
+@media (max-width: 860px) {
+  body.library { height: auto; overflow: auto; }
+  .lib-shell { display: block; }
+  .lib-stage { height: 64vh; border-bottom: 1px solid var(--line); }
+  .lib-panel { border-left: 0; padding: 16px; }
+  .library .lib-title { display: none; }
+  .library .search input { width: 140px; }
+  .lib-legend { bottom: 8px; right: 12px; }
+  .lib-hint { display: none; }
+}
