@@ -3,21 +3,27 @@
   "topic": "Responsive Self Service Procurement in Oracle Fusion",
   "folder": "Responsive-Self-Service-Procurement",
   "duration": "30m",
-  "level": null,
-  "phase": "research",
+  "level": "beginner",
+  "phase": "done",
   "phases": {
     "intake": "2026-11-23T00:00:00Z",
     "probe": "2026-11-23T00:05:00Z",
-    "research": "2026-11-23T00:15:00Z"
+    "research": "2026-11-23T00:15:00Z",
+    "grill": "2026-11-23T00:30:00Z",
+    "prd": "2026-11-23T00:40:00Z",
+    "build": "2026-11-23T01:00:00Z",
+    "done": "2026-11-23T01:00:00Z"
   },
   "runs": [
     {
       "started": "2026-11-23T00:00:00Z",
       "mode": "new",
-      "finished": null
+      "finished": "2026-11-23T01:00:00Z"
     }
   ],
   "notes": [
-    "research: 20 sources, all primary (Oracle docs + readiness)"
-  ]
+    "research: 20 sources, all primary (Oracle docs + readiness)",
+    "build: 0 errors, 0 warnings after 3 loops; no adoptions"
+  ],
+  "playerVersion": "1.0.0"
 }
