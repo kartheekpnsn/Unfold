@@ -1,6 +1,6 @@
 # Design tokens
 
-Defined in `assets/player/theme.css`. Use token names in scenes (`color: 'blue'`), never raw hex, so light and dark mode both work.
+Defined in `assets/player/theme.css`. Use token names in scenes (`color: 'blue'`), never raw hex, so light and dark mode and every style (the chalk board redefines them) all work.
 
 ## Palette
 
@@ -18,6 +18,7 @@ Neutral base with the Microsoft logo colours as accents.
 | `green` | `#7FBA00` | | **added, correct, done, "push"** |
 | `blue` | `#00A4EF` | | **normal items, primary action, active step, links** |
 | `yellow` | `#FFB900` | | **highlight, being looked at, "good to know", in flight** |
+| `purple` | `#8661C5` | | **a fourth, neutral series** (e.g. a residual stream, a second dataset); no fixed meaning |
 
 `*-ink` variants (`blue-ink`, `red-ink`, …) are contrast-tuned for text and thin lines in each mode. `*-soft` variants are pale fills for callouts and backgrounds. Yellow is a fill only; for yellow text use `yellow-ink`.
 

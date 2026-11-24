@@ -4,19 +4,23 @@
 // Route: #/<topic>/<tab>/<step>   (deep-dive sub-lessons: #/<topic>/deep-dive:<sub>/<step>)
 
 import { createKit } from 'unfold/scene-kit';
-import { createThreeKit, webglAvailable } from 'unfold/three-stage';
+import { createThreeKit, createIsoMesh, webglAvailable } from 'unfold/three-stage';
+import { STYLES } from 'unfold/templates';
 import { icon } from 'unfold/icons';
-import { esc, md, highlightLines, initTheme, copyText, progressFor, saveProgress, PLAYER_VERSION } from 'unfold/util';
+import { esc, md, highlightLines, initTheme, copyText, progressFor, saveProgress, store, PLAYER_VERSION } from 'unfold/util';
 import { renderQuiz } from 'unfold/quiz';
 
 const STEPPER_KINDS = new Set(['stepper', 'lessons']);
 const DEFAULT_ICONS = { eli5: 'lightbulb', core: 'flash', technical: 'code', 'deep-dive': 'layer', playground: 'options',
   story: 'history', tradeoffs: 'scales', check: 'question-circle', cheatsheet: 'document-text', related: 'branch' };
-const AUTOPLAY_MS = 4500;
+// Autoplay waits long enough to read the narration (~230 words a minute) plus the animation.
+const autoplayMs = step => Math.max(3500, Math.min(16000, 1800 + String(step?.narration || '').split(/\s+/).length * 260));
 
 // nav = { crumbs: [{title, href}], children: [{title, href}], topics: [{title, href, key}] } (hrefs relative to this page)
 export function boot({ lesson, scenes, nav }) {
-  new Player(lesson, scenes || {}, nav || { crumbs: [], children: [], topics: [] }).start();
+  const player = new Player(lesson, scenes || {}, nav || { crumbs: [], children: [], topics: [] });
+  window.__unfold = { player };   // read-only handle for scripts/render-check.mjs
+  player.start();
 }
 
 const keyOf = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -31,6 +35,15 @@ class Player {
     this.autoplay = null;
     this.route = null;
     this.progress = progressFor(lesson.slug);
+    // Styles the learner can switch between: lesson.style first, then lesson.altStyles.
+    this.styleOptions = [...new Set([lesson.style || 'isometric', ...(lesson.altStyles || [])])].filter(x => STYLES[x]);
+    this.userStyle = store.get('style:' + lesson.slug, null);
+    if (!this.styleOptions.includes(this.userStyle)) this.userStyle = null;
+  }
+
+  styleFor(tab) {
+    const st = this.userStyle || tab?.style || this.lesson.style || 'isometric';
+    return STYLES[st] ? st : 'isometric';
   }
 
   start() {
@@ -156,6 +169,7 @@ class Player {
       this.showStep(r.step - 1, { first: true });
     } else if (tab.kind === 'playground') {
       center.innerHTML = this.headHtml(tab) + this.stageCardHtml(false);
+      this.bindStyleControls();
       this.renderPlayground(tab, narr);
     } else if (tab.kind === 'quiz') {
       renderQuiz(center, this.lesson);
@@ -195,6 +209,9 @@ class Player {
       <div class="stage-top">
         <div class="metrics" id="metrics"></div>
         <div class="ctrls">
+          ${this.styleOptions.length > 1 ? `<div class="style-seg" role="group" aria-label="Drawing style">${this.styleOptions.map(o =>
+            `<button data-style="${esc(o)}" aria-pressed="${this.styleFor(this.route?.tab) === o}">${esc(STYLES[o].label)}</button>`).join('')}</div>` : ''}
+          <button class="btn" id="motion-btn" hidden title="Pause background motion">${icon('pause', 16)}<span>Motion</span></button>
           ${withRail ? `<button class="btn" id="replay-btn" title="Replay this step (R)">${icon('arrow-counterclockwise', 16)}<span>Replay</span></button>
           <button class="btn" id="play-btn" title="Autoplay steps (Space)">${icon('play', 16)}<span>Play</span></button>` : ''}
         </div>
@@ -222,7 +239,32 @@ class Player {
       `<li><label><input type="checkbox" data-obj="${i}" ${done[i] ? 'checked' : ''}><span>${md(o, this.lesson.sources)}</span></label></li>`).join('')}</ul></div>`;
   }
 
+  bindStyleControls() {
+    document.querySelectorAll('.style-seg button').forEach(b => b.addEventListener('click', () => {
+      this.userStyle = b.dataset.style;
+      store.set('style:' + this.lesson.slug, this.userStyle);
+      document.querySelectorAll('.style-seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+      const { tab, sub, step } = this.route;
+      this.teardownStageOnly();
+      if (tab.kind === 'playground') this.renderTab(this.route);
+      else { const cur = this.stepsOf(tab, sub)[step - 1]; this.renderScene(cur.scene, cur.state, { animateIn: true }); }
+    }));
+    this.$('#motion-btn')?.addEventListener('click', () => {
+      const inst = this.stage?.inst; if (!inst) return;
+      this.motionPaused = !this.motionPaused;
+      inst.setPaused?.(this.motionPaused);
+      this.syncMotionBtn();
+    });
+  }
+  syncMotionBtn() {
+    const b = this.$('#motion-btn'); if (!b) return;
+    const has = !!this.stage?.inst?.hasLoops?.() && !this.stage.inst.reduced;
+    b.hidden = !has;
+    if (has) { this.stage.inst.setPaused?.(!!this.motionPaused); b.innerHTML = `${icon(this.motionPaused ? 'play' : 'pause', 16)}<span>Motion</span>`; b.setAttribute('aria-pressed', String(!!this.motionPaused)); }
+  }
+
   bindStageControls() {
+    this.bindStyleControls();
     this.$('#replay-btn')?.addEventListener('click', () => this.replay());
     this.$('#play-btn')?.addEventListener('click', () => this.toggleAutoplay());
     this.$('#back-btn')?.addEventListener('click', () => this.stepBy(-1));
@@ -307,7 +349,8 @@ class Player {
     // metrics (highlight those that changed since the previous step)
     const pm = prevStep?.metrics || {};
     this.$('#metrics').innerHTML = Object.entries(step.metrics || {}).map(([k, v]) =>
-      `<span class="metric${!first && pm[k] !== undefined && String(pm[k]) !== String(v) ? ' changed' : ''}">${esc(k)} <b>${esc(v)}</b></span>`).join('');
+      `<span class="metric${!first && pm[k] !== undefined && String(pm[k]) !== String(v) ? ' changed' : ''}">${esc(k)} <b data-metric="${esc(k)}">${esc(v)}</b></span>`).join('');
+    if (!first) this.countMetrics(pm, step.metrics || {});
 
     // rail + progress
     this.$('#rail').querySelectorAll('.rail-step').forEach((el, j) => {
@@ -323,8 +366,23 @@ class Player {
     await this.renderScene(step.scene, step.state, { instant: first, animateIn: !first });
   }
 
+  // Numeric metric chips count from the old value to the new one instead of snapping.
+  countMetrics(from, to) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const num = v => (typeof v === 'number' ? v : /^-?\d+(\.\d+)?$/.test(String(v).trim()) ? +v : null);
+    for (const [k, v] of Object.entries(to)) {
+      const a = num(from[k]), b = num(v), el = this.$(`#metrics [data-metric="${CSS.escape(k)}"]`);
+      if (a == null || b == null || a === b || !el) continue;
+      const dec = Math.max(...[from[k], v].map(x => (String(x).split('.')[1] || '').length)), t0 = performance.now();
+      const run = now => { const t = Math.min(1, (now - t0) / 520), e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        el.textContent = (a + (b - a) * e).toFixed(dec); if (t < 1 && el.isConnected) requestAnimationFrame(run); else el.textContent = String(v); };
+      requestAnimationFrame(run);
+    }
+  }
+
   async ensureStage(sceneId) {
-    if (this.stage && this.stage.sceneId === sceneId) return this.stage;
+    const style = this.styleFor(this.route?.tab);
+    if (this.stage && this.stage.sceneId === sceneId && this.stage.style === style) return this.stage;
     const token = ++this.mountToken;
     if (this.stage?.inst) { try { this.stage.inst.destroy(); } catch (e) { console.error(e); } }
     this.stage = null; this.prevState = null;
@@ -345,11 +403,17 @@ class Player {
         badge = `${icon('info', 14)} 3D unavailable on this device, showing 2D`;
       }
     }
-    if (mode === 'svg') inst = createKit(el, { label: scene.label || sceneId, ...(scene.view || {}) });
+    if (mode === 'svg') {
+      inst = createKit(el, { label: scene.label || sceneId, style: style === '3d' && !webglAvailable() ? 'isometric' : style, ...(scene.view || {}) });
+      if (style === '3d' && webglAvailable()) {
+        try { const mesh = await createIsoMesh(el, inst); if (token === this.mountToken) inst.attachMesh(mesh); else mesh.destroy(); }
+        catch (e) { console.error(e); }
+      }
+    }
     if (token !== this.mountToken) { inst.destroy(); return null; }
     if (badge) el.insertAdjacentHTML('beforeend', `<div class="stage-badge">${badge}</div>`);
     scene.mount?.(el, inst);
-    this.stage = { sceneId, scene, inst, el, mode };
+    this.stage = { sceneId, scene, inst, el, mode, style };
     return this.stage;
   }
 
@@ -363,8 +427,10 @@ class Player {
       if (instant || (!prev && !animateIn)) inst.duration = 0;
       else if (duration != null) inst.duration = Math.min(saved, duration);
       st.scene.render(structuredClone(state || {}), prev, inst);
+      if (st.mode === 'three' && state?.camera) inst.applyCamera?.(state.camera);
       inst.duration = saved;
       this.prevState = structuredClone(state || {});
+      this.syncMotionBtn();
     } catch (e) {
       console.error(e);
       const el = this.$('#stage');
@@ -398,14 +464,17 @@ class Player {
     const steps = this.stepsOf(this.route.tab, this.route.sub);
     if (this.route.step >= steps.length) this.go(this.route.tab.id, this.route.sub, 1);
     btn.innerHTML = `${icon('pause', 16)}<span>Pause</span>`;
-    this.autoplay = setInterval(() => {
+    const next = () => {
       const s = this.stepsOf(this.route.tab, this.route.sub);
-      if (this.route.step >= s.length) return this.stopAutoplay();
-      this.stepBy(1);
-    }, AUTOPLAY_MS);
+      this.autoplay = setTimeout(() => {
+        if (this.route.step >= s.length) return this.stopAutoplay();
+        this.stepBy(1); next();
+      }, autoplayMs(s[this.route.step - 1]));
+    };
+    next();
   }
   stopAutoplay() {
-    clearInterval(this.autoplay); this.autoplay = null;
+    clearTimeout(this.autoplay); this.autoplay = null;
     const btn = this.$('#play-btn');
     if (btn) btn.innerHTML = `${icon('play', 16)}<span>Play</span>`;
   }

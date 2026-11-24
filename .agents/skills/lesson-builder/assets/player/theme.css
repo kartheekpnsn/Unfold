@@ -10,6 +10,7 @@
   /* accents as text/lines (contrast-tuned per mode) */
   --red-ink: #C43E1C; --green-ink: #3F7D00; --blue-ink: #0067B8; --yellow-ink: #8A6100;
   --red-soft: #FDECE6; --green-soft: #EEF6E0; --blue-soft: #E3F4FC; --yellow-soft: #FFF5DB;
+  --purple: #8661C5; --purple-ink: #6A44A8; --purple-soft: #F0EAF9;
   --shadow: 0 1px 2px rgba(20,20,30,.04), 0 4px 16px rgba(20,20,30,.05);
   --radius: 10px; --radius-sm: 6px;
   --font: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
@@ -25,6 +26,7 @@
     --red: #F25022; --green: #7FBA00; --blue: #00A4EF; --yellow: #FFB900;
     --red-ink: #FF7A50; --green-ink: #9BD23C; --blue-ink: #4CC2FF; --yellow-ink: #FFC83D;
     --red-soft: #3A2019; --green-soft: #26321A; --blue-soft: #14303D; --yellow-soft: #3A3019;
+    --purple-ink: #B79CF0; --purple-soft: #2A2238;
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
     color-scheme: dark;
   }
@@ -34,6 +36,7 @@
   --line: #2E2F35; --line-strong: #3B3C43; --dot: #34353C;
   --red-ink: #FF7A50; --green-ink: #9BD23C; --blue-ink: #4CC2FF; --yellow-ink: #FFC83D;
   --red-soft: #3A2019; --green-soft: #26321A; --blue-soft: #14303D; --yellow-soft: #3A3019;
+  --purple-ink: #B79CF0; --purple-soft: #2A2238;
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
   color-scheme: dark;
 }
@@ -143,6 +146,31 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .stage > canvas:active { cursor: grabbing; }
 .stage-badge { position: absolute; left: 12px; bottom: 10px; font-size: 11.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; pointer-events: none; }
 .stage-error { position: absolute; inset: 0; display: grid; place-items: center; color: var(--red-ink); font-size: 14px; padding: 20px; text-align: center; }
+
+/* stage styles (lesson.style / tab.style): the kit re-skins shapes, these set paper, fonts and tokens */
+.stage[data-style="line"] { --grid: color-mix(in srgb, var(--blue) 13%, transparent);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: center; }
+.stage[data-style="sketch"] { background: #FCFBF6; background-image: radial-gradient(circle at 30% 20%, rgba(0,0,0,.025), transparent 60%); }
+.stage[data-style="sketch"] text, .stage[data-style="chalk"] text { font-family: "Patrick Hand", var(--font); letter-spacing: .01em; }
+.stage[data-style="sketch"] text.mono, .stage[data-style="chalk"] text.mono { font-family: "Patrick Hand", var(--mono); }
+.stage[data-style="chalk"] { background: radial-gradient(ellipse at 50% 40%, #2C3D35, #1E2924 75%);
+  --ink: #F2F0E6; --ink-2: #DAD8CC; --muted: #A3AA9C; --surface: #2A3A33; --surface-2: #31433B; --line: #42574D; --line-strong: #74887D; --bg: #1E2924;
+  --blue: #8FD3FF; --blue-ink: #C2E8FF; --blue-soft: #2C4A56; --green: #B5E48C; --green-ink: #D6F5BC; --green-soft: #34503A;
+  --red: #FF9E8A; --red-ink: #FFC6B9; --red-soft: #5A3A33; --yellow: #FFE38A; --yellow-ink: #FFF1BD; --yellow-soft: #57502F;
+  --purple: #CDB6FF; --purple-ink: #E2D5FF; --purple-soft: #3D3552; }
+.stage[data-style="pictogram"] { background-image: none; background: var(--surface-2); }
+.stage[data-style="3d"] > canvas { pointer-events: none; cursor: default; }
+/* Above phone width the stage takes the scene's own 8:5 shape, so the drawing fills it instead of floating in a tall box. */
+@media (min-width: 561px) {
+  .stage-card { flex: none; min-height: 0; }
+  .stage { flex: none; aspect-ratio: 8 / 5; min-height: 300px; max-height: calc(100vh - 250px); }
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .stage[data-style="sketch"] { background: #1C1D1A; } }
+:root[data-theme="dark"] .stage[data-style="sketch"] { background: #1C1D1A; }
+.style-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.style-seg button { border: 0; background: var(--surface); padding: 5px 9px; font-size: 12.5px; color: var(--muted); }
+.style-seg button[aria-pressed="true"] { background: var(--blue-soft); color: var(--blue-ink); font-weight: 600; }
 
 /* svg scene text */
 .stage text { font-family: var(--font); }

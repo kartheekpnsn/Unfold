@@ -24,11 +24,26 @@ Each lesson includes an animated stage, cited narration, and these tabs:
 | 30 minutes | ELI5, Core Mechanism, Technical, Check Yourself, Related & Sources |
 | 2 hours | Everything above, plus Deep Dive, Playground, Story & Misconceptions, Trade-offs, and Cheatsheet |
 
-Scenes use isometric SVG diagrams or three.js for spatial explanations, with SVG fallbacks when WebGL is unavailable.
+Scenes are animated, not slides: shapes glide, grow, draw themselves on, count up and play in sequence (cause, then effect), following a short set of motion rules distilled from Disney's animation principles, Material, Fluent, Carbon and Apple motion guidance, Mayer's multimedia-learning research and WCAG. Each lesson picks a drawing **style** to suit the topic, and learners can switch styles on the stage:
+
+| Style | Suits |
+|---|---|
+| Clean (isometric) | Data structures, software, systems |
+| Line (blueprint) | Physics, engineering, maths, statistics |
+| Sketch (whiteboard) | ELI5 and general explainers |
+| Chalk | Formulas and derivations |
+| Pictogram | Business, history, people, processes |
+| 3D | Layered or structural topics: lit, shadowed three.js versions of the same scene |
+
+Spatial subjects (airflow, molecules, stacks of network layers) can also use free-camera three.js scenes. Every 3D view has a 2D fallback for devices without WebGL.
 
 The generated page bundles its player, styles, fonts, lesson content, and scene code. **Reading a built lesson needs no installation or network connection**; following external source links does.
 
-Try the included [Stacks lesson](topics/Stacks/index.html) or [How Do Planes Fly lesson](topics/How-Do-Planes-Fly/index.html). Open the [library map](topics/index.html) to browse all lessons: click a node for details or double-click to open it. Faint nodes represent suggested topics that have not been built yet.
+Try the included [Stacks lesson](topics/Stacks/index.html), [LLM lesson](topics/LLM/index.html) or [How Do Planes Fly lesson](topics/How-Do-Planes-Fly/index.html).
+
+> **Reference samples.** Stacks and How Do Planes Fly were built by hand as the quality bar for the player. They cite sources in their `lesson.json`, but they have no `research.md`, `sources.json` or `PRD.md`, so their research can't be traced or upgraded through the pipeline. Run Unfold on either topic and choose *Regenerate from scratch* to get a full research trail. Every other lesson was produced by the pipeline.
+
+Open the [library map](topics/index.html) to browse all lessons: click a node for details or double-click to open it. Faint nodes represent suggested topics that have not been built yet.
 
 ## How does it work?
 
@@ -87,7 +102,8 @@ flowchart TD
 
 **To generate or rebuild lessons:**
 
-- Node.js 18 or newer. The build scripts need no npm package installation.
+- Node.js 22 or newer. The build scripts need no npm package installation.
+- Google Chrome, Chromium or Microsoft Edge for the render check (headless; set `CHROME_PATH` if it isn't found).
 - Claude Code, GitHub Copilot (VS Code agent mode or CLI), or Codex CLI, configured and available in this workspace.
 - Web search and page-fetching tools enabled for lesson research.
 - Permission for the agent to read/write project files and run build commands.
@@ -184,6 +200,10 @@ node .agents/skills/lesson-builder/scripts/validate-lesson.mjs topics/Stacks
 # Validate and rebuild one lesson; also refreshes the library map.
 node .agents/skills/lesson-builder/scripts/build-page.mjs topics/Stacks
 
+# Render every step in headless Chrome (desktop, phone, every style, WebGL off) and check
+# layout and motion; writes contact sheets to topics/Stacks/_unfold/qa/.
+node .agents/skills/lesson-builder/scripts/render-check.mjs topics/Stacks
+
 # Rebuild all lessons and their navigation.
 node .agents/skills/topic-tree/scripts/tree.mjs rebuild
 
@@ -191,7 +211,7 @@ node .agents/skills/topic-tree/scripts/tree.mjs rebuild
 node scripts/sync-agents.mjs --check
 ```
 
-The page builder refuses to write a lesson with validation errors. Fix the reported errors and rebuild rather than bypassing validation.
+The page builder refuses to write a lesson with validation errors. Fix the reported errors and rebuild rather than bypassing validation. The render check reports what only a browser can see: clipped or overlapping labels, shapes off the stage, runtime errors, and animation problems such as steps where only the words change. Open its contact sheets to review every step at a glance.
 
 ## Repository layout
 
@@ -218,7 +238,8 @@ topics/<Topic>/
     PRD.md            Replayable lesson specification
     lesson.json       Lesson text, steps, quizzes, and sources
     scenes.js         SVG or three.js animations
-    build-log.md      Validation results and build iterations
+    build-log.md      Validation results, build iterations and render checks
+    qa/               Render-check contact sheets and report (not committed)
 ```
 
 ## Troubleshooting
@@ -226,5 +247,6 @@ topics/<Topic>/
 - **Research cannot access the web:** Enable web search and fetching in your AI tool, then resume. Unfold must stop rather than invent research from memory.
 - **The agent is not listed:** Make sure the tool is opened at the repository root, run `node scripts/sync-agents.mjs`, and reload the tool's agent discovery.
 - **A build fails:** Run the validation command above, address its errors in the lesson source, and rebuild.
+- **The render check can't start a browser:** Install Chrome, Chromium or Edge, or point `CHROME_PATH` at one.
 - **Navigation is out of date:** Run the tree script's `rebuild` command. Use its `move` command for future folder moves.
 - **A lesson is interrupted:** Ask Unfold for the same topic and choose to resume from its saved phase.

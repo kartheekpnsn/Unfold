@@ -14,6 +14,9 @@ Copy this into `T/_unfold/PRD.md` (T = the topic folder) and fill every section.
 - **Domain:** <subject slug, e.g. dsa, ai-ml, science, history, tech, film>
 - **Summary:** <one sentence, used as the page description>
 - **Player version:** <from state.json>
+- **Style:** <isometric | line | sketch | chalk | pictogram | 3d>, from research.md §4 and the topic (see lesson-builder/references/styles/)
+- **Alternate styles:** <1-2 the learner can switch to, e.g. sketch, 3d>
+- **Tab styles:** <overrides, e.g. "eli5: sketch", or "none">
 
 ## 1. Learner profile
 - Why: <from probe.md>
@@ -35,9 +38,12 @@ One subsection per tab, in the required order for the duration (see lesson-build
 
 For stepper tabs, a table, one row per step:
 
-| # | Step title (≤ 60 chars) | Narration intent (one line) | Cite | Scene id | Mode | What the scene shows (state) |
-|---|---|---|---|---|---|---|
-| 1 | … | … | S2 | `stack-main` | svg | empty stack, base plate, "top = none" pointer |
+| # | Step title (≤ 60 chars) | Narration intent (one line) | Cite | Scene id | Mode | What the scene shows (state) | What moves |
+|---|---|---|---|---|---|---|---|
+| 1 | … | … | S2 | `stack-main` | svg | empty stack, base plate, "top = none" pointer | the tray outline draws on |
+| 2 | … | … | S2 | `stack-main` | svg | [4] | box 4 drops in, then the "top" tag climbs to it |
+
+"What moves" is required: name the change the learner *sees* (moves, grows, draws on, counts, recolours). A step where only words change is a slide; redesign it.
 
 - Callouts: <step #: kind, text>
 - Code / formula: <language + the snippet, and which lines each step highlights>, or "none"
@@ -54,9 +60,10 @@ One entry per scene id used above:
 
 - **`<scene-id>`** · svg | three (fallback: `<svg scene id>`)
   - Purpose: <the one idea it makes visible>
+  - Template: <kit.pipeline / kit.timeline / kit.compare / kit.array / kit.stack / kit.graphWalk / kit.chartStory, or "custom">
   - Elements: <boxes / tokens / lanes / arrows / labels, with colour meanings>
   - State fields: <name: type, meaning>
-  - Transitions: <what moves between steps>
+  - Transitions: <what moves between steps, in order: e.g. "phase 1 box drops in, phase 2 tag climbs, size counts">
 
 ## 5. Quiz
 

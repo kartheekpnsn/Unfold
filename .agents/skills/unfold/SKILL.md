@@ -75,15 +75,15 @@ Follow the `learner-grill` skill yourself (it needs the user). It writes `T/_unf
 
 Write `T/_unfold/PRD.md` from `references/prd-template.md`, using only `probe.md`, `research.md`, `grill.md` and `.agents/skills/lesson-builder/references/tabs.md`. The PRD is the **replayable contract**: any of the three tools must be able to rebuild the page from `PRD.md` + `research.md` alone. Include the placement (parent, and which existing folders this topic will adopt).
 
-Show a short summary (level, objectives, tabs with step counts, 3D scenes if any, folder placement and planned moves) and ask once: *Build it* / *Tweak first*. Skip the question with `--yes`. Phase → `prd`.
+Show a short summary (level, objectives, tabs with step counts, style and alternates, 3D scenes if any, folder placement and planned moves) and ask once: *Build it* / *Tweak first*. Skip the question with `--yes`. Phase → `prd`.
 
 ## Phase 5: Build (Builder subagent)
 
 Start the **unfold-builder** subagent **with a fresh context**. Give it only:
 
-> Build the Unfold lesson in folder `T`. Read `.agents/skills/lesson-builder/SKILL.md` and follow it. Inputs: `T/_unfold/PRD.md`, `T/_unfold/research.md`, `T/_unfold/sources.json`. Write `T/_unfold/lesson.json`, `T/_unfold/scenes.js` and `T/_unfold/build-log.md`, then build `T/index.html`.
+> Build the Unfold lesson in folder `T`. Read `.agents/skills/lesson-builder/SKILL.md` and follow it. Inputs: `T/_unfold/PRD.md`, `T/_unfold/research.md`, `T/_unfold/sources.json`. Write `T/_unfold/lesson.json`, `T/_unfold/scenes.js` and `T/_unfold/build-log.md`, then build `T/index.html` and render-check it.
 
-No subagents? Follow `lesson-builder` inline. Afterwards confirm: `$BUILD T` prints ✓. If it still fails after the builder's 3 loops, show the user the remaining errors and stop. Phase → `build`.
+No subagents? Follow `lesson-builder` inline. Afterwards confirm: `$BUILD T` prints ✓ and `node .agents/skills/lesson-builder/scripts/render-check.mjs T --no-log` prints ✓. If either still fails after the builder's 3 loops, show the user the remaining errors and stop. Phase → `build`.
 
 ## Phase 6: Adopt and rebuild
 

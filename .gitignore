@@ -1,1 +1,4 @@
 .DS_Store
+
+# render-check output (contact sheets, frames, report): regenerated on every check
+topics/**

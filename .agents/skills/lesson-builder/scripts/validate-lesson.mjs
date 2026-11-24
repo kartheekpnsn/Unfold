@@ -8,6 +8,7 @@
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve, basename, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { PRIMITIVES, MOTION, STYLE_NAMES, TEMPLATE_NAMES, installTemplates } from '../assets/player/scene-templates.js';
 
 export const RULES = {
   tabs: {
@@ -25,7 +26,9 @@ export const RULES = {
   objectives: [3, 5],
   optionRatio: 2.2, // longest / shortest option length
   levels: ['beginner', 'intermediate', 'advanced'],
+  textRectShare: 0.6, // a scene whose drawing calls are mostly text/rect reads as a slide, not an animation
 };
+const EASES = ['standard', 'out', 'overshoot', 'linear'];
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const CITE = /\[(S\d+)\]/g;
 const words = t => String(t || '').replace(CITE, '').replace(/[*`]/g, '').trim().split(/\s+/).filter(Boolean).length;
@@ -69,6 +72,11 @@ export async function validateTopic(dir) {
   if (!SLUG.test(L.domain || '')) E('domain', 'missing or not a slug');
   if (!L.summary) W('summary', 'missing one-line summary (used for the page description)');
   if (!L.playerVersion) W('playerVersion', 'missing; record the player version the lesson was built against');
+  if (L.style != null && !STYLE_NAMES.includes(L.style)) E('style', `must be one of ${STYLE_NAMES.join(', ')}, got "${L.style}"`);
+  if (L.altStyles != null) {
+    if (!Array.isArray(L.altStyles)) E('altStyles', 'must be a list of style names');
+    else for (const st of L.altStyles) if (!STYLE_NAMES.includes(st)) E('altStyles', `"${st}" is not a style (${STYLE_NAMES.join(', ')})`);
+  }
   const [omin, omax] = RULES.objectives;
   if (!Array.isArray(L.objectives) || L.objectives.length < omin || L.objectives.length > omax) E('objectives', `need ${omin}-${omax} learning objectives`);
 
@@ -129,6 +137,7 @@ export async function validateTopic(dir) {
     const kind = RULES.kinds[t.id];
     if (kind && t.kind !== kind) E(`tab ${t.id}`, `kind must be "${kind}", got "${t.kind}"`);
     if (!t.title) E(`tab ${t.id}`, 'missing title');
+    if (t.style != null && !STYLE_NAMES.includes(t.style)) E(`tab ${t.id}`, `style must be one of ${STYLE_NAMES.join(', ')}, got "${t.style}"`);
     if (t.kind === 'stepper') {
       const steps = t.steps || [];
       const [lo, hi] = RULES.steps[t.id] || [1, 12];
@@ -230,6 +239,7 @@ export async function validateTopic(dir) {
       runs.push([t.id, variants.map(v => ({ scene: t.scene, state: v, playground: true }))]);
     }
   }
+  const usage = new Map();   // scene -> { counts by primitive, templates }
   for (const [where, steps] of runs) {
     const mounted = new Map();
     let prev = null, prevScene = null;
@@ -242,40 +252,66 @@ export async function validateTopic(dir) {
       try {
         let kit = mounted.get(sc);
         if (!kit) { kit = mockKit(); mounted.set(sc, kit); sc.mount?.call(sc, fakeEl(), kit); }
+        kit.__issues.length = 0;
         if (prevScene !== sc) prev = null;
         sc.render.call(sc, structuredClone(s.state || {}), prev, kit);
         if (s.playground) { if (sc.metrics) sc.metrics(s.state); if (sc.note) sc.note(s.state); }
         prev = s.state || {}; prevScene = sc;
+        for (const msg of new Set(kit.__issues)) E(label, `scene "${s.scene}": ${msg}`);
+        const id = Object.keys(scenes).find(k => scenes[k] === sc), u = usage.get(id) || { counts: {}, templates: 0 };
+        for (const [k, v] of Object.entries(kit.__counts)) u.counts[k] = (u.counts[k] || 0) + v;
+        u.templates += kit.__templates; kit.__reset(); usage.set(id, u);
       } catch (e) { E(label, `scene "${s.scene}" threw while rendering: ${e.message}`); }
     });
+  }
+  // "show, don't label": scenes drawn mostly with text and rectangles read as slides
+  for (const [id, u] of usage) {
+    const total = Object.values(u.counts).reduce((a, b) => a + b, 0) + u.templates * 4;
+    const tr = (u.counts.text || 0) + (u.counts.rect || 0);
+    if (total >= 12 && tr / total > RULES.textRectShare) W(`scene ${id}`, `${Math.round(tr / total * 100)}% of its drawing is text and rect boxes: show, don't label (move, grow, draw on, use charts, shapes, people, icons or a template; see motion-and-visual-principles.md)`);
   }
   return { slug, errors, warnings };
 }
 
-// ---------- mock kit: same surface as scene-kit.js, records nothing, throws on unknown calls ----------
-const PRIMS = ['box', 'plate', 'token', 'label', 'pointer', 'arrow', 'rect', 'text', 'line', 'sarrow', 'path', 'circle', 'chart'];
+// ---------- mock kit: same surface as scene-kit.js, counts calls, throws on unknown calls ----------
+const PRIMS = PRIMITIVES;
 const TOKENS = ['red', 'green', 'blue', 'yellow', 'ink', 'ink-2', 'muted', 'surface', 'surface-2', 'line', 'line-strong', 'bg',
-  'red-ink', 'green-ink', 'blue-ink', 'yellow-ink', 'red-soft', 'green-soft', 'blue-soft', 'yellow-soft'];
+  'red-ink', 'green-ink', 'blue-ink', 'yellow-ink', 'red-soft', 'green-soft', 'blue-soft', 'yellow-soft', 'purple', 'purple-ink', 'purple-soft'];
 function fakeEl() {
   return new Proxy({ innerHTML: '', style: {}, dataset: {}, clientWidth: 800, clientHeight: 500 }, {
     get: (t, k) => (k in t ? t[k] : () => fakeEl()), set: (t, k, v) => { t[k] = v; return true; } });
 }
 function mockKit() {
-  let open = false;
+  let open = false, depth = 0, phases = [];
   const colors = Object.fromEntries(TOKENS.map(t => [t, '#888888']));
   const k = {
     W: 800, H: 500, scale: 38, origin: [0, 40], duration: 0, paused: false, reduced: true, svg: fakeEl(), world: fakeEl(), primitives: PRIMS,
-    begin() { open = true; }, end() { if (!open) throw new Error('kit.end() called without kit.begin()'); open = false; },
+    style: 'isometric', styleSpec: {}, motion: { ...MOTION }, mesh: null, narrow: false,
+    __counts: {}, __templates: 0, __issues: [], __reset() { this.__counts = {}; this.__templates = 0; },
+    begin() { open = true; phases = []; }, end() { if (!open) throw new Error('kit.end() called without kit.begin()'); open = false; },
+    seq(...names) { if (!open) throw new Error('kit.seq() called outside kit.begin()/kit.end()'); phases = names.flat(); },
     iso: (x = 0, y = 0, z = 0) => { for (const v of [x, y, z]) if (typeof v !== 'number' || Number.isNaN(v)) throw new Error(`kit.iso got a non-number (${v})`); return [0, 0]; },
-    view() {}, colors: () => colors, color: () => '#888888', shade: () => '#888888',
-    loop() {}, clearLoops() {}, setPaused() {}, isAnimating: () => false, raw: () => fakeEl(), background() {}, floor() {}, refreshColors() {}, clear() {}, destroy() {},
+    view() {}, viewBox: () => ({ x: -400, y: -250, w: 800, h: 500 }), colors: () => colors, color: () => '#888888', shade: () => '#888888',
+    measure: (t, o = {}) => String(t).length * (o.size || 13) * 0.55, pointAt: () => [0, 0],
+    loop() {}, clearLoops() {}, setPaused() {}, isAnimating: () => false, hasLoops: () => false, raw: () => fakeEl(), background() {}, floor() {},
+    refreshColors() {}, clear() {}, destroy() {}, attachMesh() {},
   };
   for (const p of PRIMS) k[p] = (key, props = {}) => {
     if (!open) throw new Error(`kit.${p}() called outside kit.begin()/kit.end()`);
     if (key == null) throw new Error(`kit.${p}() needs a key`);
     if (typeof props !== 'object') throw new Error(`kit.${p}('${key}') props must be an object`);
+    if (props.motion != null && !MOTION[props.motion]) k.__issues.push(`motion "${props.motion}" must be one of ${Object.keys(MOTION).join(', ')}`);
+    if (props.ease != null && !EASES.includes(props.ease)) k.__issues.push(`ease "${props.ease}" must be one of ${EASES.join(', ')}`);
+    if (typeof props.phase === 'string' && !phases.includes(props.phase)) k.__issues.push(`phase "${props.phase}" is not declared with kit.seq(...)`);
+    if (props.along != null && (typeof props.along !== 'object' || typeof props.along.d !== 'string')) k.__issues.push(`along must be { d: 'M…', t: 0..1 }`);
+    if (depth === 0) k.__counts[p] = (k.__counts[p] || 0) + 1;
   };
-  return new Proxy(k, { get: (t, prop) => { if (prop in t || typeof prop === 'symbol') return t[prop]; throw new Error(`kit.${String(prop)} does not exist (see scene-cookbook.md)`); } });
+  installTemplates(k);
+  for (const t of TEMPLATE_NAMES) {
+    const fn = k[t];
+    k[t] = (...a) => { if (!open) throw new Error(`kit.${t}() called outside kit.begin()/kit.end()`); if (depth === 0) k.__templates++; depth++; try { return fn(...a); } finally { depth--; } };
+  }
+  return new Proxy(k, { get: (t, prop) => { if (prop in t || typeof prop === 'symbol' || String(prop).startsWith('__')) return t[prop]; throw new Error(`kit.${String(prop)} does not exist (see scene-cookbook.md)`); } });
 }
 
 /** Every folder under root that holds a topic (has _unfold/lesson.json), depth-first. */

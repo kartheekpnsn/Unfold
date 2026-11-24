@@ -25,12 +25,16 @@ Use these headings exactly, in this order. Every bullet that states a fact ends 
 2. …   (2-3 candidates; say which you'd pick and why)
 
 ## 4. Visual metaphors
-| Concept | What the animation could show | Step-by-step state changes | 3D needed? | Why |
-|---|---|---|---|---|
-| <A> | <boxes stacking on a plate> | <empty → push 4 → push 6 → pop> | no | <flat structure reads best in isometric> |
-| <B> | <airflow around a wing> | <…> | yes | <the thing is spatial: flow wraps around a body> |
+| Concept | What the animation could show | Step-by-step state changes | 3D helps? | Style | Why |
+|---|---|---|---|---|---|
+| <A> | <boxes stacking on a plate> | <empty → push 4 → push 6 → pop> | `3d` style | isometric | <a stack has height; depth makes it read as a pile> |
+| <B> | <airflow around a wing> | <…> | three scene | line | <the thing is spatial: flow wraps around a body> |
+| <C> | <who pays whom in a supply chain> | <…> | no | pictogram | <actors and flows of money, no physical shape> |
 
-3D is justified only when the topic is spatial: airflow, molecules, orbits, physical mechanisms, layered networks seen in depth.
+**3D helps** when the topic is spatial (airflow, molecules, orbits, mechanisms), layered (network layers, transformer blocks, storage tiers), or about scale and depth (a tensor, a stack, a tower of calls). Say which: a `three` scene (free camera, anything spatial) or the `3d` style (lit, shadowed boxes for a layered or structural picture). "No" is right for flat ideas.
+
+**Style** suggests how the lesson should be drawn: `isometric` (DSA, systems), `line` (physics, maths, statistics), `sketch` (ELI5, general explainers), `chalk` (formulas, derivations), `pictogram` (business, history, people), `3d` (layered or structural). See `.agents/skills/lesson-builder/references/styles/`.
+Every metaphor should **move**: write the state changes as things that grow, travel, draw, stack or count, not as captions that change.
 
 ## 5. Common misconceptions
 - **Myth:** <…> · **Why it's wrong:** <…> · **Correct idea:** <…> · [S#]

@@ -34,7 +34,9 @@ Icons: pick from the vendored Fluent set (`assets/player/icons/icons.js`), e.g. 
   "level": "beginner",                      // beginner | intermediate | advanced (from grill.md)
   "domain": "dsa",                          // subject area slug (dsa, ai-ml, science, history, tech, film…)
   "summary": "One sentence.",
-  "playerVersion": "1.0.0",                 // from state.json
+  "playerVersion": "1.1.0",                 // from state.json
+  "style": "isometric",                     // optional: isometric | line | sketch | chalk | pictogram | 3d (from the PRD)
+  "altStyles": ["sketch", "3d"],            // optional: styles the learner can switch to on the stage
   "sourcesAccessed": "2026-11-23",
   "objectives": ["3-5 items, markdown-lite allowed"],
   "tabs": [ /* see below */ ],
@@ -53,12 +55,14 @@ Icons: pick from the vendored Fluent set (`assets/player/icons/icons.js`), e.g. 
 
 ```jsonc
 { "id": "core", "title": "Core Mechanism", "icon": "stack", "kind": "stepper",
+  "style": "line",                                         // optional: this tab's style (overrides lesson.style)
   "code": { "lang": "py", "title": "Python", "src": "line 1\nline 2" },   // optional, shared by all steps
   "steps": [
     {
       "title": "push(6)",                                   // ≤ 60 chars
       "scene": "stack-main",                                // id in scenes.js
       "state": { "stack": [4, 6], "op": "push(6)" },        // whatever the scene's render() reads
+                                                            // three.js scenes: state.camera = { pos: [x,y,z], target: [x,y,z] } glides the view
       "narration": "≤ 60 words, **bold** key terms, cite [S2].",
       "callout": { "kind": "good-to-know", "text": "…" },   // optional: good-to-know | warning | insight
       "whatChanged": ["+ pushed 6", "~ top is now 6", "- popped 5"],   // optional, ≤ 4; + green, - red, ~ yellow
@@ -125,3 +129,7 @@ The scene receives `{ ...state, aoa, pressure, view }` and should export `metric
 ## Markdown-lite (all text fields)
 
 `**bold**`, `*em*`, `` `code` ``, `[S3]` citation chips, `[text](https://url)` links. In narration, a blank line (`\n\n`) starts a new paragraph. Nothing else.
+
+## Styles
+
+`style` picks how every scene is drawn (see `scene-cookbook.md` § Styles and `references/styles/`). Choose it in the PRD from the topic: `isometric` for DSA and systems, `line` for physics, maths and statistics, `sketch` for ELI5 and general explainers, `chalk` for formulas, `pictogram` for business, history and people, `3d` for layered or structural topics. A tab may override it (ELI5 in `sketch` is a good default). List one or two `altStyles` so the learner can switch; `render-check.mjs` checks every declared style. The learner's choice overrides the tab styles.

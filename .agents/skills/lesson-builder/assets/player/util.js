@@ -1,5 +1,5 @@
 // Small shared helpers for the player.
-export const PLAYER_VERSION = '1.0.0';
+export const PLAYER_VERSION = '1.1.0';
 
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
